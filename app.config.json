@@ -1,0 +1,93 @@
+{
+  "$schema": "./.dt-app/app.config.schema.json",
+  "environmentUrl": "https://<dt_env>.apps.dynatrace.com/",
+  "app": {
+    "name": "Canvases",
+    "version": "0.4.0",
+    "description": "Live Dynatrace Data Visualization Engine for Fully Customized View Requirements",
+    "id": "my.dynatrace.canvases",
+    "icon": "ui/assets/app-icon.svg",
+    "scopes": [
+      {
+        "name": "storage:metrics:read",
+        "comment": "read metric data via DQL timeseries/metrics"
+      },
+      {
+        "name": "document:direct-shares:read",
+        "comment": "read shares"
+      },
+      {
+        "name": "storage:events:read",
+        "comment": "read event data via DQL events, incl. Davis problems (dt.davis.problems) and Davis events (dt.davis.events), which are stored as Grail events"
+      },
+      {
+        "name": "storage:bizevents:read",
+        "comment": "read business event data via DQL bizevents"
+      },
+      {
+        "name": "storage:user.events:read",
+        "comment": "read business event data via DQL bizevents"
+      },
+      {
+        "name": "storage:user.sessions:read",
+        "comment": "read business event data via DQL bizevents"
+      },
+      {
+        "name": "storage:logs:read",
+        "comment": "read log data via DQL logs"
+      },
+      {
+        "name": "storage:spans:read",
+        "comment": "read span data via DQL spans"
+      },
+      {
+        "name": "storage:entities:read",
+        "comment": "read entity data via DQL (dt.entity.* tables, e.g. dt.entity.service)"
+      },
+      {
+        "name": "storage:smartscape:read",
+        "comment": "read Smartscape topology via DQL (smartscape.* tables, e.g. smartscape.nodes; needed for getNodeName / node lookups)"
+      },
+      {
+        "name": "storage:system:read",
+        "comment": "read Dynatrace internal/system tables (audit, query execution, dt.system.*)"
+      },
+      {
+        "name": "storage:buckets:read",
+        "comment": "required alongside table reads; grants access to Grail buckets"
+      },
+      {
+        "name": "document:documents:read",
+        "comment": "read saved views and background images"
+      },
+      {
+        "name": "document:documents:write",
+        "comment": "create and update saved views and backgrounds"
+      },
+      {
+        "name": "document:documents:delete",
+        "comment": "delete saved views and backgrounds"
+      },
+      {
+        "name": "document:direct-shares:read",
+        "comment": "list who a view is shared with"
+      },
+      {
+        "name": "document:direct-shares:write",
+        "comment": "share a view with specific users/groups and add recipients"
+      },
+      {
+        "name": "document:direct-shares:delete",
+        "comment": "revoke a user's/group's access to a view"
+      },
+      {
+        "name": "iam:users:read",
+        "comment": "search users by name/email for the share people picker"
+      },
+      {
+        "name": "iam:groups:read",
+        "comment": "search groups by name for the share people picker"
+      }
+    ]
+  }
+}

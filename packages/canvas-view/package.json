@@ -1,0 +1,33 @@
+{
+  "name": "@dynatrace-canvases/canvas-view",
+  "version": "0.1.0",
+  "description": "Read-only renderer for Dynatrace Canvas documents (type metrics-graphic-view), for embedding a canvas in another Dynatrace app.",
+  "license": "ISC",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@dynatrace-sdk/client-document": ">=1.31.0",
+    "@dynatrace-sdk/react-hooks": ">=1.12.1",
+    "@dynatrace/strato-components": ">=3.3.1",
+    "@dynatrace/strato-components-preview": ">=3.3.1",
+    "@dynatrace/strato-design-tokens": ">=1.3.1",
+    "@dynatrace/strato-icons": ">=2.2.0",
+    "react": ">=18",
+    "react-dom": ">=18"
+  }
+}

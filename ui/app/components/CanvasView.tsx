@@ -1,0 +1,188 @@
+import React from "react";
+import { Flex } from "@dynatrace/strato-components/layouts";
+import { Text } from "@dynatrace/strato-components/typography";
+import { ImageIcon } from "@dynatrace/strato-icons";
+import Colors from "@dynatrace/strato-design-tokens/colors";
+import type { MetricTile as MetricTileModel } from "../types/metricsView";
+import { MetricTile } from "./MetricTile";
+
+/**
+ * The read-only canvas renderer: a scaled, absolutely-positioned layer stack
+ * (scroll container → sizer → canvas box → background image → tiles). It holds
+ * no editing state — every edit affordance is opt-in via callbacks. The core
+ * app's `GlassCanvas` composes this and layers its editing overlays on top; an
+ * external app can render this directly (read-only) to embed a canvas.
+ *
+ * Tile coordinates are in the background image's own pixel space; `scale` is a
+ * single CSS transform applied to the canvas box so background and tiles zoom
+ * together.
+ */
+export interface CanvasViewProps {
+  tiles: MetricTileModel[];
+  backgroundUrl: string | null;
+  /** Canvas size in px (the background's natural dimensions, or a fallback). */
+  bounds: { width: number; height: number };
+  /** Zoom factor applied to the canvas box. */
+  scale: number;
+  /** Auto-refresh interval (ms) for each tile's value query. */
+  refreshIntervalMs: number;
+  /** Enables per-tile edit affordances (drag/resize/toolbar) when true. */
+  editable?: boolean;
+  /** Reports whether a tile id is currently selected (edit mode). */
+  isSelected?: (id: string) => boolean;
+
+  /** Refs the parent needs for zoom (scroll) and pointer mapping (canvas box). */
+  scrollRef?: React.Ref<HTMLDivElement>;
+  canvasBoxRef?: React.Ref<HTMLDivElement>;
+  onCanvasPointerDown?: (e: React.PointerEvent) => void;
+  onBackgroundLoad?: (e: React.SyntheticEvent<HTMLImageElement>) => void;
+  onBackgroundError?: () => void;
+
+  /** Per-tile edit callbacks (omit for read-only). */
+  onTileChange?: (tile: MetricTileModel) => void;
+  onRemoveTile?: (id: string) => void;
+  onEditTile?: (tile: MetricTileModel) => void;
+  onDuplicateTile?: (tile: MetricTileModel) => void;
+  onSnap?: (
+    id: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  ) => { x: number; y: number };
+  onGestureEnd?: () => void;
+  onHeaderPointerDown?: (
+    id: string,
+    additive: boolean,
+    clientX: number,
+    clientY: number,
+  ) => boolean;
+  onLoadingChange?: (id: string, loading: boolean) => void;
+
+  /** Extra content rendered inside the canvas box, above tiles (e.g. guides). */
+  overlay?: React.ReactNode;
+  /** Extra content rendered inside the canvas box, below tiles (e.g. an edit grid). */
+  underlay?: React.ReactNode;
+}
+
+export const CanvasView: React.FC<CanvasViewProps> = ({
+  tiles,
+  backgroundUrl,
+  bounds,
+  scale,
+  refreshIntervalMs,
+  editable = false,
+  isSelected,
+  scrollRef,
+  canvasBoxRef,
+  onCanvasPointerDown,
+  onBackgroundLoad,
+  onBackgroundError,
+  onTileChange,
+  onRemoveTile,
+  onEditTile,
+  onDuplicateTile,
+  onSnap,
+  onGestureEnd,
+  onHeaderPointerDown,
+  onLoadingChange,
+  overlay,
+  underlay,
+}) => {
+  return (
+    <div
+      ref={scrollRef}
+      style={{
+        width: "100%",
+        height: "100%",
+        overflow: "auto",
+        background: Colors.Background.Base.Default,
+        padding: 24,
+        boxSizing: "border-box",
+      }}
+    >
+      {/* Sizer reserves scroll space equal to the scaled canvas. */}
+      <div
+        style={{
+          width: bounds.width * scale,
+          height: bounds.height * scale,
+          margin: "0 auto",
+        }}
+      >
+        <div
+          ref={canvasBoxRef}
+          onPointerDown={onCanvasPointerDown}
+          style={{
+            position: "relative",
+            width: bounds.width,
+            height: bounds.height,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            background: Colors.Background.Container.Neutral.Default,
+            border: `1px solid ${Colors.Border.Neutral.Default}`,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+          }}
+        >
+          {backgroundUrl ? (
+            <img
+              src={backgroundUrl}
+              alt="Canvas background"
+              onLoad={onBackgroundLoad}
+              onError={() => onBackgroundError?.()}
+              draggable={false}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "fill",
+                pointerEvents: "none",
+                userSelect: "none",
+              }}
+            />
+          ) : (
+            editable && (
+              <Flex
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                gap={8}
+                style={{ width: "100%", height: "100%" }}
+              >
+                <ImageIcon />
+                <Text style={{ color: Colors.Text.Neutral.Default }}>
+                  Blank canvas — add a background from the toolbar, or place
+                  tiles directly.
+                </Text>
+              </Flex>
+            )
+          )}
+
+          {underlay}
+
+          {tiles.map((tile) => (
+            <MetricTile
+              key={tile.id}
+              tile={tile}
+              editable={editable}
+              selected={isSelected?.(tile.id) ?? false}
+              refreshIntervalMs={refreshIntervalMs}
+              bounds={bounds}
+              scale={scale}
+              onChange={onTileChange}
+              onRemove={onRemoveTile}
+              onEdit={onEditTile}
+              onDuplicate={onDuplicateTile}
+              onSnap={onSnap}
+              onGestureEnd={onGestureEnd}
+              onHeaderPointerDown={onHeaderPointerDown}
+              onLoadingChange={onLoadingChange}
+            />
+          ))}
+
+          {overlay}
+        </div>
+      </div>
+    </div>
+  );
+};
