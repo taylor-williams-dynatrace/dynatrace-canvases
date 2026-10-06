@@ -36,6 +36,9 @@ packages/*/dist
 .DS_Store
 Thumbs.db
 
+# Local agent config
+/.claude/
+
 # app-settings plugin local files
 /settings/local-mock-data/secrets.json
 /settings/local-mock-data/persistence/
